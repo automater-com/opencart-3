@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Automater</name>
+    <version>1.0.0</version>
+    <code>automater</code>
+    <author>Automater Sp z.o.o </author>
+    <link>http://www.opencart.com</link>
+    <file path="admin/controller/catalog/product.php">
+        <operation>
+            <search><![CDATA[
+                if (isset($this->request->post['product_description'])) {
+            ]]></search>
+            <add position="before"><![CDATA[
+                //AUTOMATER
+                if (isset($this->request->post['automater_product_id'])) {
+                    $data['automater_product_id'] = $this->request->post['automater_product_id'];
+                } elseif (!empty($product_info)) {
+                    $data['automater_product_id'] = $product_info['automater_product_id'];
+                } else {
+                    $data['automater_product_id'] = '';
+                }
+                //AUTOMATER
+            ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[
+                $data['stock_statuses'] = $this->model_localisation_stock_status->getStockStatuses();
+            ]]></search>
+            <add position="after"><![CDATA[
+                //AUTOMATER
+        		$data['automater_enabled'] = $this->config->get('total_automater_status');
+        		if ($data['automater_enabled']) {
+        			$this->load->model('extension/total/automater');
+        			$data['automater_products'] = $this->model_extension_total_automater->getAutomaterProducts();
+        		}
+        		//AUTOMATER
+            ]]></add>
+        </operation>
+    </file>
+    <file path="admin/language/en-gb/catalog/product.php">
+        <operation>
+            <search><![CDATA[
+                // Heading
+            ]]></search>
+            <add position="before"><![CDATA[
+                // Automater
+                $_['help_automater']          = 'Select the product from the Automater system you want to bind';
+                $_['entry_automater']          = 'Automater Product';
+            ]]></add>
+        </operation>
+    </file>
+    <file path="admin/model/catalog/product.php">
+        <operation>
+            <search><![CDATA[
+                $product_id = $this->db->getLastId();
+            ]]></search>
+            <add position="after"><![CDATA[
+                if (isset($data['automater_product_id'])) {
+        			$this->db->query("UPDATE " . DB_PREFIX . "product SET automater_product_id = '" . $this->db->escape($data['automater_product_id']) . "' WHERE product_id = '" . (int)$product_id . "'");
+        		}
+            ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[
+                public function editProduct($product_id, $data) {
+            ]]></search>
+            <add position="after"><![CDATA[
+                if (isset($data['automater_product_id'])) {
+                    $this->db->query("UPDATE " . DB_PREFIX . "product SET automater_product_id = '" . $this->db->escape($data['automater_product_id']) . "' WHERE product_id = '" . (int)$product_id . "'");
+                }
+            ]]></add>
+        </operation>
+    </file>
+    <file path="admin/view/template/catalog/product_form.twig">
+        <operation>
+            <search><![CDATA[
+                <div class="tab-pane" id="tab-data">
+            ]]></search>
+            <add position="after"><![CDATA[
+                <!-- AUTOMATER -->
+                {% if automater_enabled %}
+                <div class="form-group">
+                 <label class="col-sm-2 control-label" for="input-stock-status"><span data-toggle="tooltip" title="{{ help_automater }}">{{ entry_automater }}</span></label>
+                 <div class="col-sm-10">
+                   <select name="automater_product_id" id="input-stock-status" class="form-control">
+                       <option value="0">{{ text_none }}</option>
+
+                     {% for automater_product in automater_products %}
+                       {% if automater_product.value == automater_product_id %}
+
+
+                         <option value="{{ automater_product.value }}" selected="selected">{{ automater_product.label }}</option>
+
+
+                       {% else %}
+
+
+                         <option value="{{ automater_product.value }}">{{ automater_product.label }}</option>
+
+
+                       {% endif %}
+                     {% endfor %}
+
+
+                   </select>
+                 </div>
+                </div>
+                {% endif %}
+                <!-- / AUTOMATER -->
+            ]]></add>
+        </operation>
+    </file>
+</modification>
