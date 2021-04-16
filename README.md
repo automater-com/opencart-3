@@ -26,3 +26,6 @@
 - Go to the admin panel and tab `Extensions -> Extensions`.
 - Select "Order Totals" from the drop-down list.
 - Find "Automater" in the list and click the blue pencil edit button.
+
+## Problems
+In OpenCart, there are often problems that are solved by users and which are not patched in the core.
