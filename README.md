@@ -27,5 +27,21 @@
 - Select "Order Totals" from the drop-down list.
 - Find "Automater" in the list and click the blue pencil edit button.
 
-## Problems
+## Important! Problems
 In OpenCart, there are often problems that are solved by users and which are not patched in the core.
+
+
+### * mysqli problems
+```bash
+Uncaught Exception: Error: Invalid default value for 'date_available'<br />Error No: 1067<br />ALTER TABLE `oc_product` ADD `automater_product_id` VARCHAR(255) NULL in /home/ririen/Pobrane/opencart-3.0.3.7/upload/system/library/db/mysqli.php:41
+
+```
+
+#### workaround:
+comment/delete line (15 aprox):
+```php
+$this->connection->query("SET SESSION sql_mode = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION'");
+```
+from file: `/upload/system/library/db/mysqli.php`
+
+Source: https://forum.opencart.com/viewtopic.php?f=206&t=222399#p813328
